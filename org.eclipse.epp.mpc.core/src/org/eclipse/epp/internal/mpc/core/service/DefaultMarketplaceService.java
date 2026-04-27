@@ -373,8 +373,8 @@ MarketplaceService {
 			if (inputNode != null) {
 				resolvedNodeMapping.put(inputNode, node);
 			} else {
-				throw new CoreException(
-						createErrorStatus(Messages.DefaultMarketplaceService_unexpectedResponse, nodeIdQuery));
+				MarketplaceClientCore.getLog().log(
+						createStatus(IStatus.WARNING, Messages.DefaultMarketplaceService_unexpectedResponse, nodeIdQuery));
 			}
 		}
 	}
