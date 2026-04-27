@@ -59,7 +59,7 @@
    <scm>
       <url>https://git.eclipse.org/c/mpc/org.eclipse.epp.mpc.git/</url>
       <connection>${tycho.scmUrl}</connection>
-      <developerConnection>ssh://git.eclipse.org:29418/simrel/org.eclipse.simrel.build</developerConnection>
+      <developerConnection>scm:git:ssh://git.eclipse.org:29418/mpc/org.eclipse.epp.mpc</developerConnection>
    </scm>
 
    <licenses>
