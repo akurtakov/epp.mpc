@@ -125,7 +125,11 @@ public class HttpClientTransport implements ITransport {
 			@Override
 			protected InputStream handleResponse(ClassicHttpResponse response)
 					throws ClientProtocolException, IOException {
+				handleResponseStatus(response.getCode(), response.getReasonPhrase());
 				HttpEntity entity = response.getEntity();
+				if (entity == null) {
+					return handleEmptyResponse();
+				}
 				byte[] contentBytes = EntityUtils.toByteArray(entity);
 				return new ByteArrayInputStream(contentBytes);
 			}
