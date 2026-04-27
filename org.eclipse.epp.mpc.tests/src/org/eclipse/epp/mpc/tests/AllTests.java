@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 The Eclipse Foundation and others.
+ * Copyright (c) 2010, 2024 The Eclipse Foundation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.epp.mpc.tests;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * @author David Green
  */
-@RunWith(LoggingSuite.class)
-@SuiteClasses({ //
+@Suite
+@SelectClasses({ //
 	RestTests.class, //
 	UITests.class, //
 	BotTests.class //

@@ -18,9 +18,9 @@ import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.widget
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withId;
 import static org.eclipse.swtbot.swt.finder.matchers.WidgetMatcherFactory.withText;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -43,12 +43,13 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotLink;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotStyledText;
 import org.hamcrest.Matcher;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 
-@Category({ RemoteTests.class, UITests.class })
+@Tag("RemoteTests")
+@Tag("UITests")
 public class MarketplaceWizardTest extends AbstractMarketplaceWizardBotTest {
 
 	@Test
@@ -70,7 +71,7 @@ public class MarketplaceWizardTest extends AbstractMarketplaceWizardBotTest {
 		itemBot(NodeMatcher.withNameRegex(".*WindowBuilder.*"));
 	}
 
-	@Ignore //Tags are currently disabled in the REST API
+	@Disabled("Tags are currently disabled in the REST API")
 	@Test
 	public void testSearchTag() {
 		Matcher<StyledText> widgetOfType = widgetOfType(StyledText.class);
@@ -119,7 +120,7 @@ public class MarketplaceWizardTest extends AbstractMarketplaceWizardBotTest {
 
 	//TODO conditional on embedded browser availability
 	//FIXME
-	@Ignore("Tooltip doesn't stay open")
+	@Disabled("Tooltip doesn't stay open")
 	@Test
 	public void testMoreInfoLearnMore() {
 		SWTBotClickableStyledText descriptionLabel = SWTBotClickableStyledText.from(bot.styledTextWithId(

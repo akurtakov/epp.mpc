@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.epp.mpc.tests.ui.wizard;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URL;
 
@@ -22,9 +22,9 @@ import org.eclipse.epp.mpc.core.model.INode;
 import org.eclipse.epp.mpc.ui.CatalogDescriptor;
 import org.eclipse.epp.mpc.ui.MarketplaceUrlHandler;
 import org.eclipse.epp.mpc.ui.MarketplaceUrlHandler.SolutionInstallationInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link MarketplaceUrlHandler}
@@ -35,14 +35,14 @@ public class MarketplaceUrlHandlerTest {
 
 	private CatalogDescriptor eclipseMarketplace;
 
-	@Before
+	@BeforeEach
 	public void installMockMarketplace() throws Exception {
 		URL url = new URL("https://marketplace.eclipse.org");
 		eclipseMarketplace = new CatalogDescriptor(url, "Eclipse Marketplace");
 		CatalogRegistry.getInstance().register(eclipseMarketplace);
 	}
 
-	@After
+	@AfterEach
 	public void uninstallMockMarketplace() throws Exception {
 		CatalogRegistry.getInstance().unregister(eclipseMarketplace);
 	}

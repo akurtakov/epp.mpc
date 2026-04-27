@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 The Eclipse Foundation and others.
+ * Copyright (c) 2010, 2024 The Eclipse Foundation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -19,14 +19,14 @@ import org.eclipse.epp.mpc.tests.service.xml.UnmarshallerTest;
 import org.eclipse.epp.mpc.tests.util.ProxyConfigurationTest;
 import org.eclipse.epp.mpc.tests.util.TextUtilTest;
 import org.eclipse.epp.mpc.tests.util.TransportFactoryTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
 /**
  * @author Carsten Reckord
  */
-@RunWith(LoggingSuite.class)
-@SuiteClasses({ //
+@Suite
+@SelectClasses({ //
 	ProxyConfigurationTest.class, //
 	UnmarshallerTest.class, //
 	TextUtilTest.class, //

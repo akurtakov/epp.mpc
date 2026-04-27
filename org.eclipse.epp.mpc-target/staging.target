@@ -13,6 +13,15 @@
 <unit id="org.hamcrest.core" version="0.0.0"/>
 <unit id="org.hamcrest.library" version="0.0.0"/>
 <unit id="org.junit" version="0.0.0"/>
+<unit id="org.junit.jupiter.api" version="0.0.0"/>
+<unit id="org.junit.jupiter.engine" version="0.0.0"/>
+<unit id="org.junit.jupiter.params" version="0.0.0"/>
+<unit id="org.junit.platform.commons" version="0.0.0"/>
+<unit id="org.junit.platform.engine" version="0.0.0"/>
+<unit id="org.junit.platform.launcher" version="0.0.0"/>
+<unit id="org.junit.platform.suite.api" version="0.0.0"/>
+<unit id="org.junit.platform.suite.engine" version="0.0.0"/>
+<unit id="org.opentest4j" version="0.0.0"/>
 <unit id="org.mockito.mockito-core" version="0.0.0"/>
 <repository location="https://download.eclipse.org/tools/orbit/simrel/orbit-aggregation/milestone/latest"/>
 </location>

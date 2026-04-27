@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 The Eclipse Foundation and others.
+ * Copyright (c) 2018, 2024 The Eclipse Foundation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -17,13 +17,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class TemporaryEnvironment extends ExternalResource {
+public class TemporaryEnvironment implements BeforeEachCallback, AfterEachCallback {
 
 	private static final Object MISSING_VALUE = new Object();
 
 	private final Map<String, Object> originalProperties = new HashMap<>();
+
+	@Override
+	public void beforeEach(ExtensionContext context) throws Exception {
+		// nothing to do on setup; properties are captured lazily on set()
+	}
+
+	@Override
+	public void afterEach(ExtensionContext context) throws Exception {
+		resetAll();
+	}
 
 	public TemporaryEnvironment set(String property, String value) {
 		Properties systemProperties = System.getProperties();
@@ -76,10 +88,5 @@ public class TemporaryEnvironment extends ExternalResource {
 		}
 		originalProperties.clear();
 		return this;
-	}
-
-	@Override
-	protected void after() {
-		resetAll();
 	}
 }

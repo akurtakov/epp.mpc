@@ -16,10 +16,10 @@ package org.eclipse.epp.mpc.tests.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,9 +47,10 @@ import org.eclipse.epp.mpc.core.model.INode;
 import org.eclipse.epp.mpc.core.model.ISearchResult;
 import org.eclipse.epp.mpc.core.service.QueryHelper;
 import org.eclipse.epp.mpc.tests.Categories.RemoteTests;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author David Green
@@ -59,7 +60,7 @@ public class DefaultMarketplaceServiceTest {
 
 	private DefaultMarketplaceService marketplaceService;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		marketplaceService = new DefaultMarketplaceService();
 		//configure client id (bug 397004), as well as eclipse and marketplace versions (bug 418865)
@@ -68,7 +69,7 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void listMarkets() throws CoreException {
 		List<? extends IMarket> markets = marketplaceService.listMarkets(new NullProgressMonitor());
 		assertNotNull(markets);
@@ -82,7 +83,7 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void getCategory() throws CoreException {
 		List<? extends IMarket> markets = marketplaceService.listMarkets(new NullProgressMonitor());
 		assertNotNull(markets);
@@ -123,7 +124,7 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void testGetMarket() throws CoreException {
 		//		Failing due to bug 302670: REST API market response inconsistency
 		//		https://bugs.eclipse.org/bugs/show_bug.cgi?id=302670
@@ -204,7 +205,7 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void search() throws CoreException {
 		ISearchResult result = search("Tools", "Editor", "windowbuilder");
 		assertNotNull(result);
@@ -219,7 +220,7 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void search_bug448453() throws CoreException {
 		ISearchResult result = search(null, null, "play!");
 		assertNotNull(result);
@@ -263,36 +264,36 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void featured() throws CoreException {
 		ISearchResult result = marketplaceService.featured(new NullProgressMonitor());
 		assertSearchResultSanity(result);
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
-	@Ignore //top favorites are not exposed in MPC anymore - this fails with a 503 due to the varnish cache failing
+	@Tag("RemoteTests")
+	@Disabled("top favorites are not exposed in MPC anymore - this fails with a 503 due to the varnish cache failing")
 	public void favorites() throws CoreException {
 		ISearchResult result = marketplaceService.topFavorites(new NullProgressMonitor());
 		assertSearchResultSanity(result);
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void popular() throws CoreException {
 		ISearchResult result = marketplaceService.popular(new NullProgressMonitor());
 		assertSearchResultSanity(result);
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void recent() throws CoreException {
 		ISearchResult result = marketplaceService.recent(new NullProgressMonitor());
 		assertSearchResultSanity(result);
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void related() throws Exception {
 		List<INode> basedOn = Arrays.asList(QueryHelper.nodeById("1139"), QueryHelper.nodeById("206"), QueryHelper
 				.nodeById("1147"));
@@ -300,13 +301,13 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void relatedEmpty() throws Exception {
 		related(Collections.<INode> emptyList());
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void relatedNull() throws Exception {
 		related(null);
 	}
@@ -352,7 +353,7 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void news() throws CoreException, ParseException, MalformedURLException {
 		News news = marketplaceService.news(new NullProgressMonitor());
 		assertNotNull(news);
@@ -369,7 +370,7 @@ public class DefaultMarketplaceServiceTest {
 	}
 
 	@Test
-	@org.junit.experimental.categories.Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void getNodes() throws CoreException {
 		INode idNode1 = QueryHelper.nodeById("206");//Mylyn
 		INode idNode2 = QueryHelper.nodeById("1139");//Subversive

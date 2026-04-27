@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.epp.mpc.tests.service;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,12 +29,10 @@ import org.eclipse.epp.mpc.core.model.ICatalog;
 import org.eclipse.epp.mpc.core.service.ICatalogService;
 import org.eclipse.epp.mpc.core.service.IMarketplaceServiceLocator;
 import org.eclipse.epp.mpc.tests.Categories.RemoteTests;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -43,7 +41,6 @@ import org.osgi.framework.ServiceRegistration;
 /**
  * @author Benjamin Muskalla
  */
-@RunWith(BlockJUnit4ClassRunner.class)
 public class CatalogServiceTest {
 
 	private final class MockCatalogService implements CatalogService {
@@ -62,7 +59,7 @@ public class CatalogServiceTest {
 
 	private BundleContext bundleContext;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		bundleContext = FrameworkUtil.getBundle(CatalogServiceTest.class).getBundleContext();
 		serviceLocatorReference = bundleContext.getServiceReference(IMarketplaceServiceLocator.class);
@@ -71,7 +68,7 @@ public class CatalogServiceTest {
 	}
 
 	@Test
-	@Category(RemoteTests.class)
+	@Tag("RemoteTests")
 	public void listCatalogs() throws CoreException {
 		List<? extends ICatalog> catalogs = catalogService.listCatalogs(new NullProgressMonitor());
 		assertNotNull(catalogs);
@@ -99,7 +96,7 @@ public class CatalogServiceTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		serviceLocator = null;
 		bundleContext.ungetService(serviceLocatorReference);
