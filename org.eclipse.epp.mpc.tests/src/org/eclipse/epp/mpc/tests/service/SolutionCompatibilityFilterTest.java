@@ -717,9 +717,7 @@ public class SolutionCompatibilityFilterTest {
 		}
 	}
 
-	@ParameterizedTest(name = "{index}__{0}__with__{1}_{2}")
-	@MethodSource("data")
-	public void testNodeQuery(Solution solution, EclipseRelease eclipseRelease, System system,
+	private void initTestParameters(Solution solution, EclipseRelease eclipseRelease, System system,
 			String version, String site, String[] features, boolean compatible, String testDescription) throws Exception {
 		this.solution = solution;
 		this.eclipseRelease = eclipseRelease;
@@ -730,6 +728,13 @@ public class SolutionCompatibilityFilterTest {
 		this.compatible = compatible;
 		this.testDescription = testDescription;
 		setupMarketplaceService();
+	}
+
+	@ParameterizedTest(name = "{index}__{0}__with__{1}_{2}")
+	@MethodSource("data")
+	public void testNodeQuery(Solution solution, EclipseRelease eclipseRelease, System system,
+			String version, String site, String[] features, boolean compatible, String testDescription) throws Exception {
+		initTestParameters(solution, eclipseRelease, system, version, site, features, compatible, testDescription);
 		if (compatible) {
 			if (solution.installable()) {
 				testCompatibleInstallableNode();
@@ -792,15 +797,7 @@ public class SolutionCompatibilityFilterTest {
 	@MethodSource("data")
 	public void testSearchResult(Solution solution, EclipseRelease eclipseRelease, System system,
 			String version, String site, String[] features, boolean compatible, String testDescription) throws Exception {
-		this.solution = solution;
-		this.eclipseRelease = eclipseRelease;
-		this.system = system;
-		this.version = version;
-		this.site = site;
-		this.features = features;
-		this.compatible = compatible;
-		this.testDescription = testDescription;
-		setupMarketplaceService();
+		initTestParameters(solution, eclipseRelease, system, version, site, features, compatible, testDescription);
 		if (compatible) {
 			testCompatibleSearchResult();
 		} else {

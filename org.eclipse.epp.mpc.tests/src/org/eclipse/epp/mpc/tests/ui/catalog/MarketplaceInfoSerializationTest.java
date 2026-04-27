@@ -223,10 +223,15 @@ public class MarketplaceInfoSerializationTest {
 	@AfterEach
 	public void deleteTestData() throws IOException {
 		if (testData != null && testData.exists()) {
-			Files.walk(testData.toPath())
-					.sorted(Comparator.reverseOrder())
-					.map(java.nio.file.Path::toFile)
-					.forEach(File::delete);
+			try (var paths = Files.walk(testData.toPath())) {
+				paths.sorted(Comparator.reverseOrder())
+						.map(java.nio.file.Path::toFile)
+						.forEach(f -> {
+							if (!f.delete()) {
+								f.deleteOnExit();
+							}
+						});
+			}
 		}
 	}
 
