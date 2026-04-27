@@ -353,8 +353,8 @@ public class MarketplaceInfoSerializationTest {
 		File registryFile = catalogRegistry.computeRegistryFile(true);
 		assertEquals(getUserHomeRegistryFile(), registryFile);
 		assertTrue(registryFile.isFile());
-		assertFalse(MessageFormat.format("Migration to new location failed, ''{0}'' still exists",
-				getLegacyUserHomeRegistryFile().getAbsolutePath()), getLegacyUserHomeRegistryFile().exists());
+		assertFalse(getLegacyUserHomeRegistryFile().exists(), MessageFormat.format("Migration to new location failed, ''{0}'' still exists",
+				getLegacyUserHomeRegistryFile().getAbsolutePath()));
 	}
 
 	@Test
@@ -369,8 +369,8 @@ public class MarketplaceInfoSerializationTest {
 		File registryFile = catalogRegistry.computeRegistryFile(true);
 		assertEquals(getUserHomeRegistryFile(), registryFile);
 		assertTrue(registryFile.isFile());
-		assertFalse(MessageFormat.format("Migration to new location failed, ''{0}'' still exists",
-				getLegacyUserHomeRegistryFile().getAbsolutePath()), getLegacyUserHomeRegistryFile().exists());
+		assertFalse(getLegacyUserHomeRegistryFile().exists(), MessageFormat.format("Migration to new location failed, ''{0}'' still exists",
+				getLegacyUserHomeRegistryFile().getAbsolutePath()));
 	}
 
 	@Test
@@ -410,10 +410,10 @@ public class MarketplaceInfoSerializationTest {
 		File registryFile = getUserHomeRegistryFile();
 		new MarketplaceInfo(catalogRegistry).save(registryFile);
 
-		assertTrue(MessageFormat.format("Registry file ''{0}'' does not exist", registryFile.getAbsolutePath()),
-				registryFile.exists());
-		assertTrue(MessageFormat.format("Registry file ''{0}'' is empty", registryFile.getAbsolutePath()), registryFile
-				.length() > 0);
+		assertTrue(registryFile.exists(),
+				MessageFormat.format("Registry file ''{0}'' does not exist", registryFile.getAbsolutePath()));
+		assertTrue(registryFile.length() > 0,
+				MessageFormat.format("Registry file ''{0}'' is empty", registryFile.getAbsolutePath()));
 
 		MarketplaceInfo loaded = loadMarketplaceInfo();
 		assertNotNull(loaded);
@@ -427,7 +427,7 @@ public class MarketplaceInfoSerializationTest {
 	@Test
 	public void loadNonExisting() {
 		MarketplaceInfo loaded = loadMarketplaceInfo();
-		assertNull("Unexpectedly loaded from " + loadPath(loaded), loaded);
+		assertNull(loaded, "Unexpectedly loaded from " + loadPath(loaded));
 	}
 
 	private static String loadPath(MarketplaceInfo loaded) {
@@ -445,7 +445,7 @@ public class MarketplaceInfoSerializationTest {
 	public void loadEmpty() throws Exception {
 		createEmptyRegistryFile(getUserHomeRegistryFile());
 		MarketplaceInfo loaded = loadMarketplaceInfo();
-		assertNull("Unexpectedly loaded from " + loadPath(loaded), loaded);
+		assertNull(loaded, "Unexpectedly loaded from " + loadPath(loaded));
 	}
 
 	@Test
@@ -454,7 +454,7 @@ public class MarketplaceInfoSerializationTest {
 		copyRegistryFile(registryFile, 20);
 
 		MarketplaceInfo loaded = loadMarketplaceInfo();
-		assertNull("Unexpectedly loaded from " + loadPath(loaded), loaded);
+		assertNull(loaded, "Unexpectedly loaded from " + loadPath(loaded));
 	}
 
 	@Test
@@ -467,9 +467,9 @@ public class MarketplaceInfoSerializationTest {
 				(byte) 0x92 });
 		os.close();
 		MarketplaceInfo loaded = loadMarketplaceInfo();
-		assertNull("Unexpectedly loaded from " + loadPath(loaded), loaded);
-		assertFalse(MessageFormat.format("Corrupted registry file ''{0}'' was not deleted", getUserHomeRegistryFile()
-				.getAbsolutePath()), getUserHomeRegistryFile().exists());
+		assertNull(loaded, "Unexpectedly loaded from " + loadPath(loaded));
+		assertFalse(getUserHomeRegistryFile().exists(), MessageFormat.format("Corrupted registry file ''{0}'' was not deleted",
+				getUserHomeRegistryFile().getAbsolutePath()));
 	}
 
 	private TestRegistryFile setupRestrictedRegistry(File... writable) throws IOException {
