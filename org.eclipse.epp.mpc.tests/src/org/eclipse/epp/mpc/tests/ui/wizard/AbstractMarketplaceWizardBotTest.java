@@ -19,12 +19,12 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -73,7 +73,6 @@ import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
-import org.eclipse.swtbot.swt.finder.junit.ScreenshotCaptureListener;
 import org.eclipse.swtbot.swt.finder.matchers.WithRegex;
 import org.eclipse.swtbot.swt.finder.results.ArrayResult;
 import org.eclipse.swtbot.swt.finder.results.Result;
@@ -95,12 +94,12 @@ import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 import org.eclipse.ui.IEditorReference;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.junit.AssumptionViolatedException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.notification.Failure;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.TestWatcher;
+import org.opentest4j.TestAbortedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,39 +138,34 @@ public abstract class AbstractMarketplaceWizardBotTest {
 		super();
 	}
 
-	@Rule
-	public TestRule screenshotOnFailureRule = (base, description) -> {
+	@RegisterExtension
+	TestWatcher screenshotOnFailureRule = new TestWatcher() {
+		@Override
+		public void testFailed(ExtensionContext context, Throwable cause) {
+			String className = context.getTestClass().map(Class::getSimpleName).orElse("unknown");
+			String methodName = context.getTestMethod().map(java.lang.reflect.Method::getName).orElse("unknown");
+			String fileName = SWTBotPreferences.SCREENSHOTS_DIR + "/" + className + "." + methodName + "."
+					+ SWTBotPreferences.SCREENSHOT_FORMAT.toLowerCase();
+			SWTUtils.captureScreenshot(fileName);
+		}
+	};
+
+	@BeforeEach
+	public void setUpScreenshotDir() {
 		String targetDir = System.getProperty(SWTBotPreferenceConstants.KEY_SCREENSHOTS_DIR);
 		if (targetDir == null && new File("target").isDirectory()) {
 			SWTBotPreferences.SCREENSHOTS_DIR = "target/screenshots";
 		}
-		return new Statement() {
+	}
 
-			private final ScreenshotCaptureListener capturer = new ScreenshotCaptureListener();
-
-			@Override
-			public void evaluate() throws Throwable {
-				try {
-					base.evaluate();
-				} catch (Throwable t) {
-					capturer.testFailure(new Failure(description, t));
-					throw t;
-				} finally {
-					tearDownBot();
-				}
-			}
-
-		};
-	};
-
-	@Before
+	@BeforeEach
 	public void setUp() {
 		launchMarketplaceWizard();
 		initWizardBot();
 	}
 
-	//tear-down is done in test rule above, since we need to do this after the rule has been applied
-	//@After
+	//tear-down is done after the screenshot extension has been applied
+	@AfterEach
 	public void tearDownBot() {
 		if (bot != null) {
 			closeWizard();
@@ -631,9 +625,9 @@ public abstract class AbstractMarketplaceWizardBotTest {
 				try {
 					super.waitUntilWidgetAppears(waitForWidget);
 				} catch (TimeoutException e) {
-					throw new AssumptionViolatedException(e.getMessage(), e);
+					throw new TestAbortedException(e.getMessage(), e);
 				} catch (WidgetNotFoundException e) {
-					throw new AssumptionViolatedException(e.getMessage(), e);
+					throw new TestAbortedException(e.getMessage(), e);
 				}
 			}
 
@@ -642,7 +636,7 @@ public abstract class AbstractMarketplaceWizardBotTest {
 				try {
 					super.waitUntil(condition, timeout, interval);
 				} catch (TimeoutException e) {
-					throw new AssumptionViolatedException(e.getMessage(), e);
+					throw new TestAbortedException(e.getMessage(), e);
 				}
 			}
 
@@ -651,7 +645,7 @@ public abstract class AbstractMarketplaceWizardBotTest {
 				try {
 					super.waitWhile(condition, timeout, interval);
 				} catch (TimeoutException e) {
-					throw new AssumptionViolatedException(e.getMessage(), e);
+					throw new TestAbortedException(e.getMessage(), e);
 				}
 			}
 		};

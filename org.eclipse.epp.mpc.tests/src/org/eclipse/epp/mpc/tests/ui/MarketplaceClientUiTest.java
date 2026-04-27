@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.epp.mpc.tests.ui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.ConnectException;
@@ -35,7 +35,7 @@ import org.eclipse.epp.internal.mpc.ui.commands.MarketplaceWizardCommand;
 import org.eclipse.epp.mpc.core.service.ICatalogService;
 import org.eclipse.epp.mpc.ui.CatalogDescriptor;
 import org.eclipse.osgi.util.NLS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Carsten Reckord

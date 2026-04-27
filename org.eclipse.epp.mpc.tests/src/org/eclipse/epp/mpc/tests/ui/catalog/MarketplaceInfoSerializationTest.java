@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.epp.mpc.tests.ui.catalog;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
@@ -35,7 +35,10 @@ import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Comparator;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -45,11 +48,9 @@ import org.eclipse.epp.internal.mpc.ui.catalog.MarketplaceNodeCatalogItem;
 import org.eclipse.epp.mpc.tests.ui.catalog.MarketplaceInfoSerializationTest.TestMarketplaceInfo.TestRegistryFile;
 import org.eclipse.epp.mpc.tests.util.TemporaryEnvironment;
 import org.eclipse.osgi.service.datalocation.Location;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link MarketplaceInfo}
@@ -174,11 +175,9 @@ public class MarketplaceInfoSerializationTest {
 		}
 	}
 
-	@Rule
-	public TemporaryFolder testData = new TemporaryFolder(getWorkDir());
+	private File tempRoot;
 
-	@Rule
-	public TemporaryEnvironment env = new TemporaryEnvironment();
+	private TemporaryEnvironment env = new TemporaryEnvironment();
 
 	private TestMarketplaceInfo catalogRegistry;
 
@@ -200,26 +199,40 @@ public class MarketplaceInfoSerializationTest {
 		}
 	}
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
+		File workDir = getWorkDir();
+		workDir.mkdirs();
+		tempRoot = Files.createTempDirectory(workDir.toPath(), "mpc-test-").toFile();
+
 		catalogRegistry = spy(new TestMarketplaceInfo());
 
-		userHome = testData.newFolder("user home");
+		userHome = new File(tempRoot, "user home");
+		userHome.mkdirs();
 		env.set("user.home", userHome.getAbsolutePath());
 
-		configurationDirectory = testData.newFolder("user home", "my eclipse", "configuration");
+		configurationDirectory = new File(tempRoot, "user home/my eclipse/configuration");
+		configurationDirectory.mkdirs();
 		configurationLocation = mock(Location.class);
 		when(configurationLocation.getURL()).thenReturn(new URL(configurationDirectory.toURI().toString().replace("%20",
 				" ")));
 		when(catalogRegistry.getConfigurationLocation()).thenReturn(configurationLocation);
 	}
 
-	@Before
-	@After
+	@BeforeEach
+	@AfterEach
 	public void clearTestBundleRegistry() {
 		File dataFile = Platform.getBundle(MarketplaceClientUi.BUNDLE_ID).getBundleContext().getDataFile(
 				"MarketplaceInfo.xml");
 		assertTrue(dataFile == null || !dataFile.isFile() || dataFile.delete());
+	}
+
+	@AfterEach
+	public void cleanupTempDir() throws IOException {
+		env.resetAll();
+		if (tempRoot != null && tempRoot.exists()) {
+			Files.walk(tempRoot.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+		}
 	}
 
 	@Test

@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.epp.mpc.tests.ui.wizard;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URL;
 
@@ -31,14 +32,11 @@ import org.eclipse.epp.mpc.core.model.IMarket;
 import org.eclipse.epp.mpc.core.model.INode;
 import org.eclipse.epp.mpc.core.service.IMarketplaceService;
 import org.eclipse.epp.mpc.ui.CatalogDescriptor;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.BlockJUnit4ClassRunner;
 
-@RunWith(BlockJUnit4ClassRunner.class)
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public class MarketplaceDiscoveryStrategyTest {
 
 	private MarketplaceDiscoveryStrategy discoveryStrategy;
@@ -49,7 +47,7 @@ public class MarketplaceDiscoveryStrategyTest {
 
 	private CatalogDescriptor catalogDescriptor;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		catalogUrl = new URL("https://marketplace.eclipse.org");
 		catalogDescriptor = new CatalogDescriptor(catalogUrl, "Eclipse.org Marketplace");
@@ -68,7 +66,7 @@ public class MarketplaceDiscoveryStrategyTest {
 		catalog.getDiscoveryStrategies().add(discoveryStrategy);
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		catalog.dispose();
 		CatalogRegistry.getInstance().unregister(catalogDescriptor);
