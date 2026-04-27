@@ -17,8 +17,8 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -54,35 +55,29 @@ import org.eclipse.epp.mpc.core.model.ISearchResult;
 import org.eclipse.epp.mpc.core.service.IMarketplaceUnmarshaller;
 import org.eclipse.epp.mpc.core.service.QueryHelper;
 import org.eclipse.epp.mpc.core.service.UnmarshalException;
-import org.eclipse.epp.mpc.tests.Categories.RemoteTests;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.ComparisonFailure;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExternalResource;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.osgi.framework.ServiceRegistration;
 
-@RunWith(Parameterized.class)
-@Category(RemoteTests.class)
-@Ignore("Disabled until test data on marketplace-staging.eclipse.org can be recreated")
+@Disabled("Disabled until test data on marketplace-staging.eclipse.org can be recreated")
+@Tag("RemoteTests")
 public class SolutionCompatibilityFilterTest {
 	private static final String BASE_URL = "http://marketplace-staging.eclipse.org";
 
@@ -273,8 +268,7 @@ public class SolutionCompatibilityFilterTest {
 		}
 	}
 
-	@Parameters(name = "{index}__{0}__with__{1}_{2}")
-	public static Iterable<Object[]> data() {
+	static Stream<Arguments> data() {
 		List<Object[]> data = new ArrayList<>();
 		checkSolutionReleaseBounds(data, Solution.KEPLER);
 		checkSolutionReleaseBounds(data, Solution.LUNA);
@@ -363,7 +357,7 @@ public class SolutionCompatibilityFilterTest {
 		//		checkSolutionWithEclipse(data, Solution.UNINSTALLABLE, EclipseRelease.UNKNOWN, System.WIN32);
 		//		checkSolutionWithEclipse(data, Solution.UNINSTALLABLE, EclipseRelease.UNKNOWN, System.LINUX);
 		//		checkSolutionWithEclipse(data, Solution.UNINSTALLABLE, EclipseRelease.UNKNOWN, System.MACOS);
-		return data;
+		return data.stream().map(arr -> Arguments.of(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7]));
 	}
 
 	private static void checkSolutionData(List<Object[]> data, String testDescription, Solution solution,
@@ -446,19 +440,19 @@ public class SolutionCompatibilityFilterTest {
 	}
 
 	private static void assertTrue(String message, boolean b, Object... details) {
-		Assert.assertTrue(format(message, flatten(b, details)), b);
+		Assertions.assertTrue(b, format(message, flatten(b, details)));
 	}
 
 	private static void assertNotNull(Object value) {
-		Assert.assertNotNull(value);
+		Assertions.assertNotNull(value);
 	}
 
 	private static void assertEquals(String message, Object o1, Object o2, Object... details) {
-		Assert.assertEquals(format(message, flatten(o1, o2, details)), o1, o2);
+		Assertions.assertEquals(o1, o2, format(message, flatten(o1, o2, details)));
 	}
 
 	private static void assertNotNull(String message, Object value, Object... details) {
-		Assert.assertNotNull(format(message, flatten(value, details)), value);
+		Assertions.assertNotNull(value, format(message, flatten(value, details)));
 	}
 
 	private static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher, Object... details) {
@@ -466,7 +460,7 @@ public class SolutionCompatibilityFilterTest {
 	}
 
 	private static void assertNull(String message, Object value, Object... details) {
-		Assert.assertNull(format(message, flatten(value, details)), value);
+		Assertions.assertNull(value, format(message, flatten(value, details)));
 	}
 
 	private static String format(String message, Object... details) {
@@ -518,14 +512,13 @@ public class SolutionCompatibilityFilterTest {
 		}
 	}
 
-	@ClassRule
-	public static TestRule stageCredentialsRule = new ExternalResource() {
+	private static class StageCredentialsExtension implements BeforeAllCallback, AfterAllCallback {
 		private UIServices originalService;
 
 		private UIServices credentialsService;
 
 		@Override
-		protected void before() throws Throwable {
+		public void beforeAll(ExtensionContext context) throws Exception {
 			IProvisioningAgent agent = (IProvisioningAgent) ServiceHelper.getService(Activator.getContext(),
 					IProvisioningAgent.SERVICE_NAME);
 			UIServices adminUIService = (UIServices) agent.getService(UIServices.SERVICE_NAME);
@@ -556,7 +549,7 @@ public class SolutionCompatibilityFilterTest {
 		}
 
 		@Override
-		protected void after() {
+		public void afterAll(ExtensionContext context) throws Exception {
 			UIServices originalService = this.originalService;
 			UIServices credentialsService = this.credentialsService;
 			this.originalService = null;
@@ -568,15 +561,17 @@ public class SolutionCompatibilityFilterTest {
 				agent.registerService(UIServices.SERVICE_NAME, originalService);
 			}
 		}
-	};
+	}
 
-	@Rule
-	public final TestRule xmlDumpRule = new TestWatcher() {
+	@RegisterExtension
+	static final StageCredentialsExtension stageCredentialsExtension = new StageCredentialsExtension();
+
+	private class XmlDumpExtension implements BeforeEachCallback, AfterEachCallback {
 
 		private ServiceRegistration<IMarketplaceUnmarshaller> unmarshallerRegistration;
 
 		@Override
-		protected void starting(final Description description) {
+		public void beforeEach(final ExtensionContext context) {
 			final IMarketplaceUnmarshaller marketplaceUnmarshaller = org.eclipse.epp.mpc.core.service.ServiceHelper
 					.getMarketplaceUnmarshaller();
 			unmarshallerRegistration = ServiceHelperImpl.getImplInstance()
@@ -590,13 +585,13 @@ public class SolutionCompatibilityFilterTest {
 								return marketplaceUnmarshaller
 										.unmarshal(new ByteArrayInputStream(input), type, monitor);
 							} catch (UnmarshalException ex) {
-								dump(description, ex, input);
+								dump(context, ex, input);
 								throw ex;
 							} catch (IOException ex) {
-								dump(description, ex, input);
+								dump(context, ex, input);
 								throw ex;
 							} catch (RuntimeException ex) {
-								dump(description, ex, input);
+								dump(context, ex, input);
 								throw ex;
 							}
 						}
@@ -618,14 +613,14 @@ public class SolutionCompatibilityFilterTest {
 		}
 
 		@Override
-		protected void finished(Description description) {
+		public void afterEach(ExtensionContext context) {
 			if (unmarshallerRegistration != null) {
 				unmarshallerRegistration.unregister();
 			}
 		}
 
-		void dump(Description description, Throwable ex, byte[] input) {
-			String fileName = description.getDisplayName() + "_"
+		void dump(ExtensionContext context, Throwable ex, byte[] input) {
+			String fileName = context.getDisplayName() + "_"
 					+ new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
 			fileName = safeFileName(fileName);
 			File outputDir = findOutputDir();
@@ -633,19 +628,19 @@ public class SolutionCompatibilityFilterTest {
 			for (int i = 1; dumpFile.exists(); i++) {
 				dumpFile = new File(outputDir, fileName + "_" + i + "-response.dump");
 			}
-			failed(new AssertionError("Dumping XML stream to " + dumpFile.getAbsolutePath()), description);
+			java.lang.System.err.println("Dumping XML stream to " + dumpFile.getAbsolutePath());
 			FileOutputStream os = null;
 			try {
 				os = new FileOutputStream(dumpFile);
 				os.write(input);
 			} catch (Exception e) {
-				failed(e, description);
+				java.lang.System.err.println("Failed to dump XML stream: " + e.getMessage());
 			} finally {
 				if (os != null) {
 					try {
 						os.close();
 					} catch (IOException e) {
-						failed(e, description);
+						java.lang.System.err.println("Failed to close XML stream dump: " + e.getMessage());
 					}
 				}
 			}
@@ -694,74 +689,62 @@ public class SolutionCompatibilityFilterTest {
 			}
 			return new String(fileName);
 		}
-	};
+	}
 
-	@Rule
-	public TestRule logRule = new TestRule() {
+	@RegisterExtension
+	final XmlDumpExtension xmlDumpExtension = new XmlDumpExtension();
 
-		public Statement apply(final Statement base, final Description description) {
-			return new Statement() {
-				@Override
-				public void evaluate() throws Throwable {
-					try {
-						log("Starting test " + description.getDisplayName());
-						base.evaluate();
-					} finally {
-						log("Finished test " + description.getDisplayName());
-					}
-				}
+	private class LogExtension implements BeforeEachCallback, AfterEachCallback {
 
-				private void log(String message) {
-					MarketplaceClientCore.error(message, null);
-					java.lang.System.out.println(message);
-				}
-			};
+		@Override
+		public void beforeEach(ExtensionContext context) {
+			log("Starting test " + context.getDisplayName());
 		}
-	};
 
-	@Rule
-	public TestRule requestInfoRule = new TestRule() {
-		public Statement apply(final Statement base, final Description description) {
-			String methodName = description.getMethodName();
+		@Override
+		public void afterEach(ExtensionContext context) {
+			log("Finished test " + context.getDisplayName());
+		}
+
+		private void log(String message) {
+			MarketplaceClientCore.error(message, null);
+			java.lang.System.out.println(message);
+		}
+	}
+
+	@RegisterExtension
+	final LogExtension logExtension = new LogExtension();
+
+	private class RequestInfoExtension implements TestExecutionExceptionHandler {
+
+		@Override
+		public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
+			if (!(throwable instanceof AssertionError)) {
+				throw throwable;
+			}
+			AssertionError error = (AssertionError) throwable;
+			String methodName = context.getRequiredTestMethod().getName();
 			if (methodName.contains("SearchResult")) {
-				return new Statement() {
-					@Override
-					public void evaluate() throws Throwable {
-						try {
-							base.evaluate();
-						} catch (AssertionError t) {
-							failedSearchQuery(t, description);
-						}
-					}
-				};
+				failedSearchQuery(error);
 			} else {
-				return new Statement() {
-					@Override
-					public void evaluate() throws Throwable {
-						try {
-							base.evaluate();
-						} catch (AssertionError t) {
-							failedNodeQuery(t, description);
-						}
-					}
-				};
+				failedNodeQuery(error);
 			}
 		}
 
-		protected void failedSearchQuery(AssertionError error, Description description) {
+		private void failedSearchQuery(AssertionError error) throws AssertionError {
 			String request = marketplaceService.addMetaParameters(BASE_URL + "/"
 					+ DefaultMarketplaceService.API_SEARCH_URI_FULL + solution.query());
 			String queryDetail = "Unexpected result in search for node " + solution.shortName() + "\n   " + request;
 			failedWithDetails(error, queryDetail);
 		}
 
-		protected void failedNodeQuery(AssertionError error, Description description) {
+		private void failedNodeQuery(AssertionError error) throws AssertionError {
 			String queryDetail = "Unexpected result in query for node " + solution.shortName() + "\n   "
 					+ marketplaceService.addMetaParameters(solution.url() + "/api/p");
 			failedWithDetails(error, queryDetail);
 		}
 
-		protected void failedWithDetails(AssertionError error, String queryDetail) throws AssertionError {
+		private void failedWithDetails(AssertionError error, String queryDetail) throws AssertionError {
 			String message = error.getMessage() == null ? queryDetail : queryDetail + "\n\n" + error.getMessage();
 
 			String testDescription = SolutionCompatibilityFilterTest.this.testDescription;
@@ -771,7 +754,7 @@ public class SolutionCompatibilityFilterTest {
 			throw adaptAssertionError(error, message);
 		}
 
-		protected AssertionError adaptAssertionError(AssertionError error, String message) {
+		private AssertionError adaptAssertionError(AssertionError error, String message) {
 			if (message == null || message.equals(error.getMessage())) {
 				return error;
 			}
@@ -779,10 +762,6 @@ public class SolutionCompatibilityFilterTest {
 			AssertionError newError;
 			if (error.getClass() == AssertionError.class) {
 				newError = new AssertionError(message);
-			} else if (error.getClass() == ComparisonFailure.class) {
-				ComparisonFailure comparisonFailure = (ComparisonFailure) error;
-				newError = new ComparisonFailure(message, comparisonFailure.getExpected(), comparisonFailure
-						.getActual());
 			} else {
 				newError = new AssertionError(message);
 				newError.initCause(error);
@@ -790,36 +769,40 @@ public class SolutionCompatibilityFilterTest {
 			newError.setStackTrace(error.getStackTrace());
 			return newError;
 		}
-	};
+	}
 
-	@Parameter(0)
+	@RegisterExtension
+	final RequestInfoExtension requestInfoExtension = new RequestInfoExtension();
+
 	public Solution solution;
 
-	@Parameter(1)
 	public EclipseRelease eclipseRelease;
 
-	@Parameter(2)
 	public System system;
 
-	@Parameter(3)
 	public String version;
 
-	@Parameter(4)
 	public String site;
 
-	@Parameter(5)
 	public String[] features;
 
-	@Parameter(6)
 	public boolean compatible;
 
-	@Parameter(7)
 	public String testDescription;
 
 	private DefaultMarketplaceService marketplaceService;
 
-	@Before
-	public void setupMarketplaceService() throws Exception {
+	private void init(Solution solution, EclipseRelease eclipseRelease, System system,
+			String version, String site, String[] features, boolean compatible, String testDescription)
+			throws Exception {
+		this.solution = solution;
+		this.eclipseRelease = eclipseRelease;
+		this.system = system;
+		this.version = version;
+		this.site = site;
+		this.features = features;
+		this.compatible = compatible;
+		this.testDescription = testDescription;
 		marketplaceService = new DefaultMarketplaceService(new URL(BASE_URL));
 		marketplaceService.setRequestMetaParameters(computeRequestMetaParameters(system, eclipseRelease));
 	}
@@ -872,8 +855,12 @@ public class SolutionCompatibilityFilterTest {
 		}
 	}
 
-	@Test
-	public void testNodeQuery() throws CoreException {
+	@ParameterizedTest(name = "{index}__{0}__with__{1}_{2}")
+	@MethodSource("data")
+	public void testNodeQuery(Solution solution, EclipseRelease eclipseRelease, System system,
+			String version, String site, String[] features, boolean compatible, String testDescription)
+			throws Exception {
+		init(solution, eclipseRelease, system, version, site, features, compatible, testDescription);
 		if (compatible) {
 			if (solution.installable()) {
 				testCompatibleInstallableNode();
@@ -886,8 +873,8 @@ public class SolutionCompatibilityFilterTest {
 	}
 
 	public void testCompatibleInstallableNode() throws CoreException {
-		assumeTrue("Skipping test - this solution and Eclipse/OS are incompatible", compatible);
-		assumeTrue("Skipping test - this solution is not installable", solution.installable());
+		assumeTrue(compatible, "Skipping test - this solution and Eclipse/OS are incompatible");
+		assumeTrue(solution.installable(), "Skipping test - this solution is not installable");
 		INode node = queryNode();
 		String updateurl = node.getUpdateurl();
 		assertThat("Node {1} has no update url", updateurl, not(isEmptyOrNullString()), node);
@@ -914,8 +901,8 @@ public class SolutionCompatibilityFilterTest {
 	}
 
 	public void testCompatibleNonInstallableNode() throws CoreException {
-		assumeTrue("Skipping test - this solution and Eclipse/OS are incompatible", compatible);
-		assumeFalse("Skipping test - this solution is installable", solution.installable());
+		assumeTrue(compatible, "Skipping test - this solution and Eclipse/OS are incompatible");
+		assumeFalse(solution.installable(), "Skipping test - this solution is installable");
 		INode node = queryNode();
 		String updateurl = node.getUpdateurl();
 		assertNull("Uninstallable node {1} should not have an update url, but has {0}", updateurl, node);
@@ -924,7 +911,7 @@ public class SolutionCompatibilityFilterTest {
 	}
 
 	public void testIncompatibleNode() throws CoreException {
-		assumeFalse("Skipping test - this solution and Eclipse/OS are compatible", compatible);
+		assumeFalse(compatible, "Skipping test - this solution and Eclipse/OS are compatible");
 		INode node = queryNode();
 		String updateurl = node.getUpdateurl();
 		assertNull("Incompatible node {1} should not have an update url, but has {0}", updateurl, node);
@@ -932,8 +919,12 @@ public class SolutionCompatibilityFilterTest {
 		assertNull("Incompatible node {1} should not have an <ius> element", ius, node);
 	}
 
-	@Test
-	public void testSearchResult() throws CoreException {
+	@ParameterizedTest(name = "{index}__{0}__with__{1}_{2}")
+	@MethodSource("data")
+	public void testSearchResult(Solution solution, EclipseRelease eclipseRelease, System system,
+			String version, String site, String[] features, boolean compatible, String testDescription)
+			throws Exception {
+		init(solution, eclipseRelease, system, version, site, features, compatible, testDescription);
 		if (compatible) {
 			testCompatibleSearchResult();
 		} else {
@@ -942,13 +933,13 @@ public class SolutionCompatibilityFilterTest {
 	}
 
 	public void testCompatibleSearchResult() throws CoreException {
-		assumeTrue("Skipping test - this solution and Eclipse/OS are incompatible", compatible);
+		assumeTrue(compatible, "Skipping test - this solution and Eclipse/OS are incompatible");
 		INode foundNode = searchForNode();
 		assertNotNull("Compatible node {1} not found in search", foundNode, solution);
 	}
 
 	public void testIncompatibleSearchResult() throws CoreException {
-		assumeFalse("Skipping test - this solution and Eclipse/OS are compatible", compatible);
+		assumeFalse(compatible, "Skipping test - this solution and Eclipse/OS are compatible");
 		INode foundNode = searchForNode();
 		assertNull("Incompatible node {0} found in search", foundNode);
 	}
