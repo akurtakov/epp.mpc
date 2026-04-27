@@ -23,8 +23,6 @@ import org.eclipse.epp.internal.mpc.ui.wizards.MarketplaceClientService;
 import org.eclipse.epp.mpc.core.model.ICategory;
 import org.eclipse.epp.mpc.core.model.IMarket;
 import org.eclipse.epp.mpc.core.service.QueryHelper;
-import org.eclipse.epp.mpc.tests.Categories.RemoteTests;
-import org.eclipse.epp.mpc.tests.Categories.UITests;
 import org.eclipse.epp.mpc.tests.ui.wizard.matcher.NodeMatcher;
 import org.eclipse.epp.mpc.tests.util.SWTBotComboAdapter;
 import org.eclipse.epp.mpc.ui.IMarketplaceClientConfiguration;

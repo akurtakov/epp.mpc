@@ -28,8 +28,6 @@ import org.eclipse.epp.internal.mpc.ui.wizards.AbstractMarketplaceDiscoveryItem;
 import org.eclipse.epp.internal.mpc.ui.wizards.DiscoveryItem;
 import org.eclipse.epp.internal.mpc.ui.wizards.MarketplacePage;
 import org.eclipse.epp.internal.mpc.ui.wizards.MarketplaceViewer;
-import org.eclipse.epp.mpc.tests.Categories.RemoteTests;
-import org.eclipse.epp.mpc.tests.Categories.UITests;
 import org.eclipse.epp.mpc.tests.ui.wizard.matcher.NodeMatcher;
 import org.eclipse.epp.mpc.tests.ui.wizard.widgets.SWTBotClickableStyledText;
 import org.eclipse.swt.custom.StyleRange;

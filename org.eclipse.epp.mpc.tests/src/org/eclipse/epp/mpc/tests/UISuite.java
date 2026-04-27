@@ -14,14 +14,15 @@ package org.eclipse.epp.mpc.tests;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import java.lang.reflect.Method;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.jupiter.api.extension.InvocationInterceptor.Invocation;
 import org.junit.jupiter.api.extension.ReflectiveInvocationContext;
 import org.junit.platform.commons.JUnitException;
-
-import java.lang.reflect.Method;
 
 /**
  * JUnit 5 extension that runs test methods on the SWT UI thread when the workbench is available.

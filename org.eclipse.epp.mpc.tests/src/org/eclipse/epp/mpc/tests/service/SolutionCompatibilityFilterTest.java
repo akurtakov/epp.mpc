@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -54,26 +55,21 @@ import org.eclipse.epp.mpc.core.model.ISearchResult;
 import org.eclipse.epp.mpc.core.service.IMarketplaceUnmarshaller;
 import org.eclipse.epp.mpc.core.service.QueryHelper;
 import org.eclipse.epp.mpc.core.service.UnmarshalException;
-import org.eclipse.epp.mpc.tests.Categories.RemoteTests;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.repository.Activator;
 import org.eclipse.equinox.p2.core.IProvisioningAgent;
 import org.eclipse.equinox.p2.core.UIServices;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.extension.AfterAllCallback;
-import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.TestWatcher;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.opentest4j.AssertionFailedError;
 import org.osgi.framework.ServiceRegistration;
 
 @Disabled("Disabled until test data on marketplace-staging.eclipse.org can be recreated")
@@ -268,7 +264,7 @@ public class SolutionCompatibilityFilterTest {
 		}
 	}
 
-	public static java.util.stream.Stream<Arguments> data() {
+	public static Stream<Arguments> data() {
 		List<Object[]> data = new ArrayList<>();
 		checkSolutionReleaseBounds(data, Solution.KEPLER);
 		checkSolutionReleaseBounds(data, Solution.LUNA);
@@ -357,7 +353,7 @@ public class SolutionCompatibilityFilterTest {
 		//		checkSolutionWithEclipse(data, Solution.UNINSTALLABLE, EclipseRelease.UNKNOWN, System.WIN32);
 		//		checkSolutionWithEclipse(data, Solution.UNINSTALLABLE, EclipseRelease.UNKNOWN, System.LINUX);
 		//		checkSolutionWithEclipse(data, Solution.UNINSTALLABLE, EclipseRelease.UNKNOWN, System.MACOS);
-		return data.stream().map(Arguments::of);
+		return data.stream().map(arr -> Arguments.of(arr));
 	}
 
 	private static void checkSolutionData(List<Object[]> data, String testDescription, Solution solution,
@@ -513,7 +509,7 @@ public class SolutionCompatibilityFilterTest {
 	}
 
 	@RegisterExtension
-	public static Extension stageCredentialsExtension = new BeforeAllCallback() {
+	public static BeforeAllCallback stageCredentialsExtension = new BeforeAllCallback() {
 		private UIServices originalService;
 
 		private UIServices credentialsService;
@@ -551,7 +547,7 @@ public class SolutionCompatibilityFilterTest {
 	};
 
 	@RegisterExtension
-	public final org.junit.jupiter.api.extension.TestWatcher xmlDumpExtension = new org.junit.jupiter.api.extension.TestWatcher() {
+	public final TestWatcher xmlDumpExtension = new TestWatcher() {
 
 		private ServiceRegistration<IMarketplaceUnmarshaller> unmarshallerRegistration;
 
@@ -577,7 +573,7 @@ public class SolutionCompatibilityFilterTest {
 		}
 
 		void dump(ExtensionContext context, Throwable ex, byte[] input) {
-			String fileName = description.getDisplayName() + "_"
+			String fileName = context.getDisplayName() + "_"
 					+ new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
 			fileName = safeFileName(fileName);
 			File outputDir = findOutputDir();
@@ -649,49 +645,6 @@ public class SolutionCompatibilityFilterTest {
 	};
 
 
-
-	protected void failedSearchQuery(AssertionError error) {
-			String request = marketplaceService.addMetaParameters(BASE_URL + "/"
-					+ DefaultMarketplaceService.API_SEARCH_URI_FULL + solution.query());
-			String queryDetail = "Unexpected result in search for node " + solution.shortName() + "\n   " + request;
-			failedWithDetails(error, queryDetail);
-		}
-
-		protected void failedNodeQuery(AssertionError error) {
-			String queryDetail = "Unexpected result in query for node " + solution.shortName() + "\n   "
-					+ marketplaceService.addMetaParameters(solution.url() + "/api/p");
-			failedWithDetails(error, queryDetail);
-		}
-
-		protected void failedWithDetails(AssertionError error, String queryDetail) {
-			String message = error.getMessage() == null ? queryDetail : queryDetail + "\n\n" + error.getMessage();
-
-			String testDescription = SolutionCompatibilityFilterTest.this.testDescription;
-			if (testDescription != null) {
-				message = testDescription + "\n\n" + message;
-			}
-			throw adaptAssertionError(error, message);
-		}
-
-		protected AssertionError adaptAssertionError(AssertionError error, String message) {
-			if (message == null || message.equals(error.getMessage())) {
-				return error;
-			}
-
-			AssertionError newError;
-			if (error.getClass() == AssertionError.class) {
-				newError = new AssertionError(message);
-			} else if (error.getClass() == ComparisonFailure.class) {
-				ComparisonFailure comparisonFailure = (ComparisonFailure) error;
-				newError = new ComparisonFailure(message, comparisonFailure.getExpected(), comparisonFailure
-						.getActual());
-			} else {
-				newError = new AssertionError(message);
-				newError.initCause(error);
-			}
-			newError.setStackTrace(error.getStackTrace());
-			return newError;
-	}
 
 	public Solution solution;
 

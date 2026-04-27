@@ -18,7 +18,6 @@ import org.eclipse.epp.internal.mpc.core.MarketplaceClientCore;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.TestWatcher;
 
 public class LoggingExtension implements BeforeEachCallback, AfterEachCallback, TestWatcher {

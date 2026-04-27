@@ -34,7 +34,6 @@ import org.eclipse.epp.internal.mpc.ui.catalog.MarketplaceDiscoveryStrategy;
 import org.eclipse.epp.internal.mpc.ui.wizards.SelectionModel;
 import org.eclipse.epp.internal.mpc.ui.wizards.SelectionModelStateSerializer;
 import org.eclipse.epp.mpc.core.service.IMarketplaceService;
-import org.eclipse.epp.mpc.tests.Categories.RemoteTests;
 import org.eclipse.epp.mpc.ui.CatalogDescriptor;
 import org.eclipse.epp.mpc.ui.Operation;
 import org.eclipse.equinox.internal.p2.discovery.model.CatalogItem;

@@ -37,6 +37,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.text.MessageFormat;
+import java.util.Comparator;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -222,8 +223,8 @@ public class MarketplaceInfoSerializationTest {
 	@AfterEach
 	public void deleteTestData() throws IOException {
 		if (testData != null && testData.exists()) {
-			java.nio.file.Files.walk(testData.toPath())
-					.sorted(java.util.Comparator.reverseOrder())
+			Files.walk(testData.toPath())
+					.sorted(Comparator.reverseOrder())
 					.map(java.nio.file.Path::toFile)
 					.forEach(File::delete);
 		}

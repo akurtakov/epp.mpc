@@ -139,7 +139,7 @@ public abstract class AbstractMarketplaceWizardBotTest {
 	}
 
 	@RegisterExtension
-	TestWatcher screenshotAndTearDownExtension = new TestWatcher() {
+	final TestWatcher screenshotAndTearDownExtension = new TestWatcher() {
 		@Override
 		public void testFailed(ExtensionContext context, Throwable cause) {
 			String targetDir = System.getProperty(SWTBotPreferenceConstants.KEY_SCREENSHOTS_DIR);
